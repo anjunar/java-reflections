@@ -6,4 +6,6 @@ public interface Annotated {
 
     Annotation[] getDeclaredAnnotations();
 
+    Annotation[] getAnnotations();
+
 }

@@ -42,6 +42,11 @@ public class TypeVariableSymbol extends TypeSymbol implements Annotated {
     }
 
     @Override
+    public Annotation[] getAnnotations() {
+        return getDeclaredAnnotations();
+    }
+
+    @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }

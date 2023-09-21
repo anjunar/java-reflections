@@ -6,6 +6,7 @@ import com.anjunar.reflections.nodes.NodeVisitor;
 import com.anjunar.reflections.types.ClassSymbol;
 import com.anjunar.reflections.types.TypeResolver;
 import com.anjunar.reflections.types.TypeSymbol;
+import com.sun.source.tree.AnnotationTree;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
@@ -14,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public abstract class ExecutableSymbol extends MemberSymbol {
 
@@ -21,10 +23,14 @@ public abstract class ExecutableSymbol extends MemberSymbol {
 
     private ParameterSymbol[] parameters;
 
+    private Annotation[] annotations;
+
     public ExecutableSymbol(Executable underlying, ClassSymbol owner) {
         super(underlying, owner);
         this.underlying = underlying;
     }
+
+    public abstract ExecutableSymbol[] getOverridden();
 
     public ParameterSymbol[] getParameters() {
         if (Objects.isNull(parameters)) {
@@ -41,11 +47,23 @@ public abstract class ExecutableSymbol extends MemberSymbol {
         return underlying.getDeclaredAnnotations();
     }
 
+    @Override
+    public Annotation[] getAnnotations() {
+        if (Objects.isNull(annotations)) {
+            annotations = Stream.concat(Stream.of(this), Arrays.stream(getOverridden()))
+                    .flatMap(method -> Arrays.stream(method.getDeclaredAnnotations()))
+                    .toArray(Annotation[]::new);
+        }
+        return annotations;
+    }
+
     public static class ParameterSymbol extends NodeSymbol implements Annotated {
 
         private static final Map<Parameter, ParameterSymbol> cache = new HashMap<>();
         private final Parameter underlying;
         private final ExecutableSymbol owner;
+
+        private Annotation[] annotations;
 
         private TypeSymbol type;
 
@@ -68,6 +86,18 @@ public abstract class ExecutableSymbol extends MemberSymbol {
         @Override
         public Annotation[] getDeclaredAnnotations() {
             return underlying.getDeclaredAnnotations();
+        }
+
+
+        @Override
+        public Annotation[] getAnnotations() {
+            if (Objects.isNull(annotations)) {
+                int parameterIndex = Arrays.asList(owner.getParameters()).indexOf(this);
+                annotations = Arrays.stream(owner.getOverridden())
+                        .flatMap(symbol -> Arrays.stream(symbol.getParameters()[parameterIndex].getDeclaredAnnotations()))
+                        .toArray(Annotation[]::new);
+            }
+            return annotations;
         }
 
         @Override

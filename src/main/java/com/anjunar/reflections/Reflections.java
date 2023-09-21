@@ -17,7 +17,9 @@ public class Reflections {
                 .toList();
 
         final Set<ClassSymbol> resolved = new HashSet<>();
+        resolved.addAll(symbols);
 
+/*
         for (ClassSymbol symbol : symbols) {
             symbol.accept(new FullScanVisitor() {
                 @Override
@@ -29,6 +31,7 @@ public class Reflections {
                 }
             });
         }
+*/
 
         return new Resolver(resolved.stream().collect(Collectors.toMap(ClassSymbol::getUnderlying, Function.identity())));
     }

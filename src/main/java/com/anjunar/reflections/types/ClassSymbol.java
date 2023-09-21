@@ -1,5 +1,6 @@
 package com.anjunar.reflections.types;
 
+import com.anjunar.reflections.Utils;
 import com.anjunar.reflections.annotations.Annotated;
 import com.anjunar.reflections.members.ConstructorSymbol;
 import com.anjunar.reflections.members.FieldSymbol;
@@ -7,6 +8,7 @@ import com.anjunar.reflections.members.MemberSymbol;
 import com.anjunar.reflections.members.MethodSymbol;
 import com.anjunar.reflections.nodes.NodeSymbol;
 import com.anjunar.reflections.nodes.NodeVisitor;
+import com.google.common.collect.Lists;
 import javassist.*;
 
 import java.lang.annotation.Annotation;
@@ -15,6 +17,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.IntFunction;
+import java.util.stream.Stream;
 
 public class ClassSymbol extends TypeSymbol implements Annotated {
     private static final Map<Class<?>, ClassSymbol> cache = new HashMap<>();
@@ -26,6 +29,8 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
     private ConstructorSymbol[] declaredConstructors;
     private MethodSymbol[] declaredMethods;
     private ClassSymbol[] declaredClasses;
+
+    private Annotation[] annotations;
 
     private ClassSymbol(Class<?> underlying, NodeSymbol owner) {
         super(underlying, owner);
@@ -167,8 +172,20 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
     }
 
     @Override
+    public Annotation[] getAnnotations() {
+        if (Objects.isNull(annotations)) {
+            annotations = Arrays.stream(getHierarchy())
+                    .flatMap(Utils::extracted)
+                    .flatMap(clazz -> Arrays.stream(clazz.getDeclaredAnnotations()))
+                    .toArray(Annotation[]::new);
+        }
+        return annotations;
+    }
+
+
+    @Override
     public String toString() {
-        return getSimpleName();
+        return STR."\{Utils.collection(getAnnotations())}\{getSimpleName()}";
     }
 
     @Override

@@ -19,11 +19,15 @@ public class MethodSymbol extends ExecutableSymbol {
     private static final Map<Method, MethodSymbol> cache = new HashMap<>();
     private final Method underlying;
 
+    private final ClassSymbol owner;
     private TypeSymbol returnType;
+
+    private MethodSymbol[] overridden;
 
     private MethodSymbol(Method underlying, ClassSymbol owner) {
         super(underlying, owner);
         this.underlying = underlying;
+        this.owner = owner;
     }
 
     public String getName() {
@@ -38,8 +42,38 @@ public class MethodSymbol extends ExecutableSymbol {
     }
 
     @Override
+    public MethodSymbol[] getOverridden() {
+        if (Objects.isNull(overridden)) {
+            TypeSymbol[] hierarchy = owner.getHierarchy();
+            Class<?>[] parameters = Arrays
+                    .stream(getParameters())
+                    .flatMap(param -> Utils.extracted(param.getType()).map(ClassSymbol::getUnderlying))
+                    .toArray(Class<?>[]::new);
+
+            overridden = Arrays.stream(hierarchy)
+                    .flatMap(Utils::extracted)
+                    .filter(clazz -> {
+                        try {
+                            return clazz.getUnderlying().getDeclaredMethod(getName(), parameters) != null;
+                        } catch (NoSuchMethodException e) {
+                            return false;
+                        }
+                    })
+                    .map(clazz -> {
+                        try {
+                            return MethodSymbol.newInstance(clazz.getUnderlying().getDeclaredMethod(getName(), parameters), owner);
+                        } catch (NoSuchMethodException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toArray(MethodSymbol[]::new);
+        }
+        return overridden;
+    }
+
+    @Override
     public String toString() {
-        return STR."\{getReturnType()} \{getName()}(\{ Utils.collection(getParameters())})";
+        return STR."\{Utils.collection(getAnnotations())}\{getReturnType()} \{getName()}(\{ Utils.collection(getParameters())})";
     }
 
     @Override
