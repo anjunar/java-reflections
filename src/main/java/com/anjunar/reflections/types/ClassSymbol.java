@@ -24,6 +24,8 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
     private final Class<?> underlying;
 
     private final CtClass underlyingAlternative;
+
+    private TypeSymbol superClass;
     private TypeSymbol[] hierarchy;
     private FieldSymbol[] declaredFields;
     private ConstructorSymbol[] declaredConstructors;
@@ -72,7 +74,12 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
     }
 
     public TypeSymbol getSuperClass() {
-        return TypeResolver.resolve(underlying.getGenericSuperclass(), this);
+        if (Objects.isNull(superClass)) {
+            if (Objects.nonNull(underlying.getGenericSuperclass())) {
+                superClass = TypeResolver.resolve(underlying.getGenericSuperclass(), this);
+            }
+        }
+        return superClass;
     }
 
     public TypeSymbol[] getInterfaces() {

@@ -47,7 +47,8 @@ public class ConstructorSymbol extends ExecutableSymbol {
                     })
                     .map(clazz -> {
                         try {
-                            return ConstructorSymbol.newInstance(clazz.getUnderlying().getDeclaredConstructor(parameters), owner);
+                            Constructor<?> declaredConstructor = clazz.getUnderlying().getDeclaredConstructor(parameters);
+                            return ConstructorSymbol.newInstance(declaredConstructor, ClassSymbol.newInstance(declaredConstructor.getDeclaringClass(), null));
                         } catch (NoSuchMethodException e) {
                             throw new RuntimeException(e);
                         }
@@ -59,7 +60,7 @@ public class ConstructorSymbol extends ExecutableSymbol {
 
     @Override
     public String toString() {
-        return STR."\{Utils.collection(getAnnotations())}\{super.toString()}\{underlying.getDeclaringClass().getSimpleName()}(\{ Utils.collection(getParameters(), ", ")})";
+        return STR."\{Utils.collection(getAnnotations())}\{super.toString()}\{underlying.getDeclaringClass().getSimpleName()}(\{ Utils.collection(getParameters(), ", ")}) [\{getOverridden().length}]";
     }
 
     @Override

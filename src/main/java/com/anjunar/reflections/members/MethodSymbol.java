@@ -61,7 +61,8 @@ public class MethodSymbol extends ExecutableSymbol {
                     })
                     .map(clazz -> {
                         try {
-                            return MethodSymbol.newInstance(clazz.getUnderlying().getDeclaredMethod(getName(), parameters), owner);
+                            Method declaredMethod = clazz.getUnderlying().getDeclaredMethod(getName(), parameters);
+                            return MethodSymbol.newInstance(declaredMethod, ClassSymbol.newInstance(declaredMethod.getDeclaringClass(), null));
                         } catch (NoSuchMethodException e) {
                             throw new RuntimeException(e);
                         }
@@ -73,7 +74,7 @@ public class MethodSymbol extends ExecutableSymbol {
 
     @Override
     public String toString() {
-        return STR."\{Utils.collection(getAnnotations())}\{super.toString()}\{getReturnType()} \{getName()}(\{Utils.collection(getParameters(), ", ")})";
+        return STR."\{Utils.collection(getAnnotations())}\{super.toString()}\{getReturnType()} \{getName()}(\{Utils.collection(getParameters(), ", ")}) [\{getOverridden().length}]";
     }
 
     @Override

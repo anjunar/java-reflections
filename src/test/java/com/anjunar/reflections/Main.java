@@ -26,6 +26,8 @@ public class Main {
 
         Utils.renderToConsole(resolver.symbols());
 
+        System.out.println(resolver.symbols().size());
+
     }
 
 }

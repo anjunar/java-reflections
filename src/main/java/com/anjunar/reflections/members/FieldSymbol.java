@@ -79,7 +79,7 @@ public class FieldSymbol extends MemberSymbol {
 
     @Override
     public String toString() {
-        return STR."\{Utils.collection(getAnnotations())}\{super.toString()}\{getType()} \{getName()}";
+        return STR."\{Utils.collection(getAnnotations())}\{super.toString()}\{getType()} \{getName()} [\{getOverridden().length}]";
     }
 
     @Override
