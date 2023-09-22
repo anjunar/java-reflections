@@ -15,7 +15,7 @@ public class Utils {
         symbols.forEach(symbol -> {
             System.out.println("-----------------------------------------------------------------------------------------------------------------------------");
             String modifiers = Utils.collection2(symbol.getModifier(), " ");
-            String annotations = Utils.collection(symbol.getAnnotations(), " ");
+            String annotations = Utils.annotation(symbol.getAnnotations());
             String extendz;
             if (symbol.getSuperClass() == null) {
                 extendz = "";
@@ -55,7 +55,7 @@ public class Utils {
         return result;
     }
 
-    public static String collection(Annotation[] args) {
+    public static String annotation(Annotation[] args) {
         return String.join("", Arrays.stream(args).map(arg -> "@" + arg.annotationType().getSimpleName() + " ").toList());
     }
 

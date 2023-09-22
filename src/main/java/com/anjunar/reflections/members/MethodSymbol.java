@@ -7,8 +7,6 @@ import com.anjunar.reflections.types.TypeResolver;
 import com.anjunar.reflections.types.TypeSymbol;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,7 +72,7 @@ public class MethodSymbol extends ExecutableSymbol {
 
     @Override
     public String toString() {
-        return STR."\{Utils.collection(getAnnotations())}\{super.toString()}\{getReturnType()} \{getName()}(\{Utils.collection(getParameters(), ", ")}) [\{getOverridden().length}]";
+        return STR."\{Utils.annotation(getAnnotations())}\{super.toString()}\{getReturnType()} \{getName()}(\{Utils.collection(getParameters(), ", ")}) [\{getOverridden().length}]";
     }
 
     @Override

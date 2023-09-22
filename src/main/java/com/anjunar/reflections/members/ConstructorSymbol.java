@@ -6,12 +6,10 @@ import com.anjunar.reflections.types.ClassSymbol;
 import com.anjunar.reflections.types.TypeSymbol;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.IntFunction;
 
 public class ConstructorSymbol extends ExecutableSymbol {
 
@@ -60,7 +58,7 @@ public class ConstructorSymbol extends ExecutableSymbol {
 
     @Override
     public String toString() {
-        return STR."\{Utils.collection(getAnnotations())}\{super.toString()}\{underlying.getDeclaringClass().getSimpleName()}(\{ Utils.collection(getParameters(), ", ")}) [\{getOverridden().length}]";
+        return STR."\{Utils.annotation(getAnnotations())}\{super.toString()}\{underlying.getDeclaringClass().getSimpleName()}(\{ Utils.collection(getParameters(), ", ")}) [\{getOverridden().length}]";
     }
 
     @Override

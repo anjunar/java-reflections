@@ -12,7 +12,6 @@ import javassist.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.IntFunction;
 
@@ -54,6 +53,10 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
 
     public boolean isAnonymousClass() {
         return underlying.isAnonymousClass();
+    }
+
+    public boolean isAssignableFrom(ClassSymbol cls) {
+        return underlying.isAssignableFrom(cls.getUnderlying());
     }
 
     public String getSimpleName() {

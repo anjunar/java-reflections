@@ -1,9 +1,11 @@
 package com.anjunar.reflections;
 
+import com.anjunar.reflections.types.ClassSymbol;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.ClassPath;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,7 +26,9 @@ public class Main {
 
         Resolver resolver = Reflections.init(classes);
 
-        Utils.renderToConsole(resolver.symbols());
+        Collection<ClassSymbol> extendz = resolver.universe().isExtendingFrom(resolver.get(Identity.class));
+
+//        Utils.renderToConsole(resolver.symbols());
 
         System.out.println(resolver.symbols().size());
 

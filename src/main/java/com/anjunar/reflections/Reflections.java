@@ -2,6 +2,7 @@ package com.anjunar.reflections;
 
 import com.anjunar.reflections.nodes.FullScanVisitor;
 import com.anjunar.reflections.types.ClassSymbol;
+import com.google.common.collect.ImmutableSortedMap;
 
 import java.util.*;
 import java.util.function.Function;
@@ -16,20 +17,9 @@ public class Reflections {
                 .map(clazz -> ClassSymbol.newInstance(clazz, null))
                 .toList();
 
-        final Set<ClassSymbol> resolved = new HashSet<>();
-
-        for (ClassSymbol symbol : symbols) {
-            symbol.accept(new FullScanVisitor() {
-                @Override
-                public void visit(ClassSymbol symbol) {
-                    if (! cache.contains(symbol)) {
-                        resolved.add(symbol);
-                        super.visit(symbol);
-                    }
-                }
-            });
-        }
-
-        return new Resolver(resolved.stream().collect(Collectors.toMap(ClassSymbol::getUnderlying, Function.identity())));
+        Comparator<Class<?>> comparator = Comparator.comparing(Class::getName);
+        Function<ClassSymbol, Class<?>> keyFunction = ClassSymbol::getUnderlying;
+        Function<ClassSymbol, ClassSymbol> valueFunction = Function.identity();
+        return new Resolver(symbols.stream().collect(ImmutableSortedMap.toImmutableSortedMap(comparator, keyFunction, valueFunction)));
     }
 }
