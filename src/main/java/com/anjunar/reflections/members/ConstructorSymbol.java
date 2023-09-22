@@ -59,7 +59,7 @@ public class ConstructorSymbol extends ExecutableSymbol {
 
     @Override
     public String toString() {
-        return STR."\{Utils.collection(getAnnotations())}\{underlying.getDeclaringClass().getSimpleName()}(\{ Utils.collection(getParameters())})";
+        return STR."\{Utils.collection(getAnnotations())}\{super.toString()}\{underlying.getDeclaringClass().getSimpleName()}(\{ Utils.collection(getParameters(), ", ")})";
     }
 
     @Override

@@ -73,7 +73,7 @@ public class MethodSymbol extends ExecutableSymbol {
 
     @Override
     public String toString() {
-        return STR."\{Utils.collection(getAnnotations())}\{getReturnType()} \{getName()}(\{ Utils.collection(getParameters())})";
+        return STR."\{Utils.collection(getAnnotations())}\{super.toString()}\{getReturnType()} \{getName()}(\{Utils.collection(getParameters(), ", ")})";
     }
 
     @Override

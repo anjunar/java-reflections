@@ -8,16 +8,16 @@ import com.anjunar.reflections.members.MemberSymbol;
 import com.anjunar.reflections.members.MethodSymbol;
 import com.anjunar.reflections.nodes.NodeSymbol;
 import com.anjunar.reflections.nodes.NodeVisitor;
-import com.google.common.collect.Lists;
 import javassist.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.IntFunction;
-import java.util.stream.Stream;
 
 public class ClassSymbol extends TypeSymbol implements Annotated {
     private static final Map<Class<?>, ClassSymbol> cache = new HashMap<>();
@@ -47,6 +47,20 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
 
     public Class<?> getUnderlying() {
         return underlying;
+    }
+
+    public MemberSymbol.Modifiers[] getModifier() {
+        List<MemberSymbol.Modifiers> modifiers = new ArrayList<>();
+        if (java.lang.reflect.Modifier.isPublic(underlying.getModifiers())) {
+            modifiers.add(MemberSymbol.Modifiers.PUBLIC);
+        }
+        if (java.lang.reflect.Modifier.isProtected(underlying.getModifiers())) {
+            modifiers.add(MemberSymbol.Modifiers.PROTECTED);
+        }
+        if (Modifier.isPrivate(underlying.getModifiers())) {
+            modifiers.add(MemberSymbol.Modifiers.PRIVATE);
+        }
+        return modifiers.toArray(new MemberSymbol.Modifiers[0]);
     }
 
     public String getSimpleName() {
@@ -185,7 +199,7 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
 
     @Override
     public String toString() {
-        return STR."\{Utils.collection(getAnnotations())}\{getSimpleName()}";
+        return STR."\{getSimpleName()}";
     }
 
     @Override

@@ -48,10 +48,10 @@ public class WildcardTypeSymbol extends TypeSymbol {
     public String toString() {
         String result = "";
         if (getLower().length > 0) {
-            result += "? super " + Utils.collection(getLower()) + " ";
+            result += "? super " + Utils.collection(getLower(), ", ") + " ";
         }
         if (getUpper().length > 0) {
-            result += "? extends " + Utils.collection(getUpper());
+            result += "? extends " + Utils.collection(getUpper(), ", ");
         }
         return result;
     }
