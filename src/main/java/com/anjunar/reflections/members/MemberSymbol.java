@@ -5,10 +5,12 @@ import com.anjunar.reflections.annotations.Annotated;
 import com.anjunar.reflections.nodes.NodeSymbol;
 import com.anjunar.reflections.types.ClassSymbol;
 
+import java.lang.reflect.AccessFlag;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public abstract class MemberSymbol extends NodeSymbol implements Annotated {
 
@@ -40,22 +42,15 @@ public abstract class MemberSymbol extends NodeSymbol implements Annotated {
         this.owner = owner;
     }
 
-    public Modifiers[] getModifier() {
-        List<Modifiers> modifiers = new ArrayList<>();
-        if (Modifier.isPublic(underlying.getModifiers())) {
-            modifiers.add(Modifiers.PUBLIC);
-        }
-        if (Modifier.isProtected(underlying.getModifiers())) {
-            modifiers.add(Modifiers.PROTECTED);
-        }
-        if (Modifier.isPrivate(underlying.getModifiers())) {
-            modifiers.add(Modifiers.PRIVATE);
-        }
-        return modifiers.toArray(new Modifiers[0]);
+    public AccessFlag[] getModifier() {
+        return underlying.accessFlags().toArray(new AccessFlag[]{});
     }
 
     @Override
     public String toString() {
-        return Utils.collection(getModifier(), " ") + " ";
+        if (getModifier().length > 0) {
+            return Utils.collection2(getModifier(), " ") + " ";
+        }
+        return "";
     }
 }

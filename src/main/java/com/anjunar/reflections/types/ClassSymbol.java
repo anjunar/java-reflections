@@ -11,10 +11,7 @@ import com.anjunar.reflections.nodes.NodeVisitor;
 import javassist.*;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.IntFunction;
@@ -51,25 +48,25 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
         return underlying;
     }
 
-    public MemberSymbol.Modifiers[] getModifier() {
-        List<MemberSymbol.Modifiers> modifiers = new ArrayList<>();
-        if (java.lang.reflect.Modifier.isPublic(underlying.getModifiers())) {
-            modifiers.add(MemberSymbol.Modifiers.PUBLIC);
-        }
-        if (java.lang.reflect.Modifier.isProtected(underlying.getModifiers())) {
-            modifiers.add(MemberSymbol.Modifiers.PROTECTED);
-        }
-        if (Modifier.isPrivate(underlying.getModifiers())) {
-            modifiers.add(MemberSymbol.Modifiers.PRIVATE);
-        }
-        return modifiers.toArray(new MemberSymbol.Modifiers[0]);
+    public AccessFlag[] getModifier() {
+        return underlying.accessFlags().toArray(new AccessFlag[0]);
+    }
+
+    public boolean isAnonymousClass() {
+        return underlying.isAnonymousClass();
     }
 
     public String getSimpleName() {
+        if (isAnonymousClass()) {
+            return "<anonymous>";
+        }
         return underlying.getSimpleName();
     }
 
     public String getFullName() {
+        if (isAnonymousClass()) {
+            return "<anonymous>";
+        }
         return underlying.getName();
     }
 
@@ -157,11 +154,18 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
     public MethodSymbol[] getDeclaredMethods() {
         if (Objects.isNull(declaredMethods)) {
             try {
+                List<CtMethod> methods = Arrays
+                        .stream(underlyingAlternative.getDeclaredMethods())
+                        .filter(method -> !method.getName().startsWith("lambda$"))
+                        .toList();
+
                 final List<MethodSymbol> methodSymbols = new ArrayList<>();
-                for (CtMethod declaredMethod : Arrays.stream(underlyingAlternative.getDeclaredMethods()).filter(method -> !method.getName().startsWith("lambda$")).toList()) {
+                for (CtMethod declaredMethod : methods) {
                     Class<?>[] parameters = getParameters(declaredMethod.getParameterTypes());
                     final Method method = underlying.getDeclaredMethod(declaredMethod.getName(), parameters);
-                    methodSymbols.add(MethodSymbol.newInstance(method, this));
+                    if (! method.isBridge()) {
+                        methodSymbols.add(MethodSymbol.newInstance(method, this));
+                    }
                 }
                 declaredMethods = methodSymbols.toArray(new MethodSymbol[0]);
             } catch (NotFoundException | NoSuchMethodException e) {

@@ -14,7 +14,7 @@ public class Utils {
 
         symbols.forEach(symbol -> {
             System.out.println("-----------------------------------------------------------------------------------------------------------------------------");
-            String modifiers = Utils.collection(symbol.getModifier(), " ");
+            String modifiers = Utils.collection2(symbol.getModifier(), " ");
             String annotations = Utils.collection(symbol.getAnnotations(), " ");
             String extendz;
             if (symbol.getSuperClass() == null) {
@@ -28,7 +28,7 @@ public class Utils {
             } else {
                 implementz = "";
             }
-            System.out.println(STR."\{ modifiers }\{ annotations } \{symbol} \{extendz} \{implementz}");
+            System.out.println(STR."\{ modifiers }\{ annotations } \{symbol.getSimpleName()} \{extendz} \{implementz}");
             System.out.println(String.join("\n", Arrays.stream(symbol.getDeclaredMembers()).map(Object::toString).toList()));
         });
 
@@ -64,5 +64,8 @@ public class Utils {
         return String.join(delimiter, Arrays.stream(args).map(Object::toString).toList());
     }
 
+    public static String collection2(Object[] args, String delimiter) {
+        return String.join(delimiter, Arrays.stream(args).map(arg -> arg.toString().toLowerCase()).toList());
+    }
 
 }
