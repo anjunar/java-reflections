@@ -23,12 +23,20 @@ public class FieldSymbol extends MemberSymbol {
 
     private TypeSymbol type;
 
-    private FieldSymbol[] overridden;
+    private FieldSymbol[] hidden;
 
     private FieldSymbol(Field underlying, ClassSymbol owner) {
         super(underlying, owner);
         this.underlying = underlying;
         this.owner = owner;
+    }
+
+    public Object get(Object object) {
+        try {
+            return this.underlying.get(object);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String getName() {
@@ -42,10 +50,10 @@ public class FieldSymbol extends MemberSymbol {
         return type;
     }
 
-    public FieldSymbol[] getOverridden() {
-        if (Objects.isNull(overridden)) {
-            overridden = Arrays.stream(owner.getHierarchy())
-                    .flatMap(Utils::extracted)
+    public FieldSymbol[] getHidden() {
+        if (Objects.isNull(hidden)) {
+            hidden = Arrays.stream(owner.getHierarchy())
+                    .flatMap(Utils::extractRaw)
                     .filter(classSymbol -> {
                         try {
                             return classSymbol.getUnderlying().getDeclaredField(getName()) != null;
@@ -62,7 +70,7 @@ public class FieldSymbol extends MemberSymbol {
                     })
                     .toArray(FieldSymbol[]::new);
         }
-        return overridden;
+        return hidden;
     }
 
     @Override
@@ -72,14 +80,14 @@ public class FieldSymbol extends MemberSymbol {
 
     @Override
     public Annotation[] getAnnotations() {
-        return Stream.concat(Stream.of(this), Arrays.stream(getOverridden()))
+        return Stream.concat(Stream.of(this), Arrays.stream(getHidden()))
                 .flatMap(field -> Arrays.stream(field.getDeclaredAnnotations()))
                 .toArray(Annotation[]::new);
     }
 
     @Override
     public String toString() {
-        return STR."\{Utils.annotation(getAnnotations())}\{super.toString()}\{getType()} \{getName()} [\{getOverridden().length}]";
+        return STR."\{Utils.annotation(getAnnotations())}\{super.toString()}\{getType()} \{getName()} [\{getHidden().length}]";
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.anjunar.reflections.types.ClassSymbol;
 import com.anjunar.reflections.types.TypeResolver;
 import com.anjunar.reflections.types.TypeSymbol;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,6 +29,14 @@ public class MethodSymbol extends ExecutableSymbol {
         this.owner = owner;
     }
 
+    public Object invoke(Object object, Object... params) {
+        try {
+            return underlying.invoke(object, params);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public String getName() {
         return underlying.getName();
     }
@@ -39,17 +48,16 @@ public class MethodSymbol extends ExecutableSymbol {
         return returnType;
     }
 
-    @Override
-    public MethodSymbol[] getOverridden() {
+    public MethodSymbol[] getHidden() {
         if (Objects.isNull(overridden)) {
             TypeSymbol[] hierarchy = owner.getHierarchy();
             Class<?>[] parameters = Arrays
                     .stream(getParameters())
-                    .flatMap(param -> Utils.extracted(param.getType()).map(ClassSymbol::getUnderlying))
+                    .flatMap(param -> Utils.extractRaw(param.getType()).map(ClassSymbol::getUnderlying))
                     .toArray(Class<?>[]::new);
 
             overridden = Arrays.stream(hierarchy)
-                    .flatMap(Utils::extracted)
+                    .flatMap(Utils::extractRaw)
                     .filter(clazz -> {
                         try {
                             return clazz.getUnderlying().getDeclaredMethod(getName(), parameters) != null;
@@ -72,7 +80,7 @@ public class MethodSymbol extends ExecutableSymbol {
 
     @Override
     public String toString() {
-        return STR."\{Utils.annotation(getAnnotations())}\{super.toString()}\{getReturnType()} \{getName()}(\{Utils.collection(getParameters(), ", ")}) [\{getOverridden().length}]";
+        return STR."\{Utils.annotation(getAnnotations())}\{super.toString()}\{getReturnType()} \{getName()}(\{Utils.collection(getParameters(), ", ")}) [\{getHidden().length}]";
     }
 
     @Override

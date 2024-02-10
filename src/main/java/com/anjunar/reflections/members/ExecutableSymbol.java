@@ -6,7 +6,6 @@ import com.anjunar.reflections.nodes.NodeVisitor;
 import com.anjunar.reflections.types.ClassSymbol;
 import com.anjunar.reflections.types.TypeResolver;
 import com.anjunar.reflections.types.TypeSymbol;
-import com.sun.source.tree.AnnotationTree;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
@@ -30,7 +29,7 @@ public abstract class ExecutableSymbol extends MemberSymbol {
         this.underlying = underlying;
     }
 
-    public abstract ExecutableSymbol[] getOverridden();
+    public abstract ExecutableSymbol[] getHidden();
 
     public ParameterSymbol[] getParameters() {
         if (Objects.isNull(parameters)) {
@@ -50,7 +49,7 @@ public abstract class ExecutableSymbol extends MemberSymbol {
     @Override
     public Annotation[] getAnnotations() {
         if (Objects.isNull(annotations)) {
-            annotations = Stream.concat(Stream.of(this), Arrays.stream(getOverridden()))
+            annotations = Stream.concat(Stream.of(this), Arrays.stream(getHidden()))
                     .flatMap(method -> Arrays.stream(method.getDeclaredAnnotations()))
                     .toArray(Annotation[]::new);
         }
@@ -93,7 +92,7 @@ public abstract class ExecutableSymbol extends MemberSymbol {
         public Annotation[] getAnnotations() {
             if (Objects.isNull(annotations)) {
                 int parameterIndex = Arrays.asList(owner.getParameters()).indexOf(this);
-                annotations = Arrays.stream(owner.getOverridden())
+                annotations = Arrays.stream(owner.getHidden())
                         .flatMap(symbol -> Arrays.stream(symbol.getParameters()[parameterIndex].getDeclaredAnnotations()))
                         .toArray(Annotation[]::new);
             }

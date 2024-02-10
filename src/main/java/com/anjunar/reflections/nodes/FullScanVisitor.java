@@ -3,6 +3,7 @@ package com.anjunar.reflections.nodes;
 import com.anjunar.reflections.members.*;
 import com.anjunar.reflections.types.*;
 
+import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,6 +27,15 @@ public class FullScanVisitor implements NodeVisitor {
             for (TypeSymbol typeSymbol : symbol.getHierarchy()) {
                 typeSymbol.accept(this);
             }
+
+            for (ClassSymbol declaredClass : symbol.getDeclaredClasses()) {
+                declaredClass.accept(this);
+            }
+
+            for (Annotation declaredAnnotation : symbol.getDeclaredAnnotations()) {
+                TypeSymbol resolved = TypeResolver.resolve(declaredAnnotation.annotationType(), symbol);
+                resolved.accept(this);
+            }
         }
     }
 
@@ -35,6 +45,11 @@ public class FullScanVisitor implements NodeVisitor {
             cache.add(symbol);
 
             symbol.getType().accept(this);
+
+            for (Annotation declaredAnnotation : symbol.getDeclaredAnnotations()) {
+                TypeSymbol resolved = TypeResolver.resolve(declaredAnnotation.annotationType(), symbol);
+                resolved.accept(this);
+            }
         }
     }
 
@@ -66,6 +81,11 @@ public class FullScanVisitor implements NodeVisitor {
             for (TypeSymbol bound : symbol.getBounds()) {
                 bound.accept(this);
             }
+
+            for (Annotation declaredAnnotation : symbol.getDeclaredAnnotations()) {
+                TypeSymbol resolved = TypeResolver.resolve(declaredAnnotation.annotationType(), symbol);
+                resolved.accept(this);
+            }
         }
 
     }
@@ -92,6 +112,11 @@ public class FullScanVisitor implements NodeVisitor {
             cache.add(symbol);
 
             symbol.getType().accept(this);
+
+            for (Annotation declaredAnnotation : symbol.getDeclaredAnnotations()) {
+                TypeSymbol resolved = TypeResolver.resolve(declaredAnnotation.annotationType(), symbol);
+                resolved.accept(this);
+            }
         }
 
     }
@@ -103,6 +128,11 @@ public class FullScanVisitor implements NodeVisitor {
 
             for (ExecutableSymbol.ParameterSymbol parameter : symbol.getParameters()) {
                 parameter.accept(this);
+            }
+
+            for (Annotation declaredAnnotation : symbol.getDeclaredAnnotations()) {
+                TypeSymbol resolved = TypeResolver.resolve(declaredAnnotation.annotationType(), symbol);
+                resolved.accept(this);
             }
         }
 
@@ -118,6 +148,11 @@ public class FullScanVisitor implements NodeVisitor {
             }
 
             symbol.getReturnType().accept(this);
+
+            for (Annotation declaredAnnotation : symbol.getDeclaredAnnotations()) {
+                TypeSymbol resolved = TypeResolver.resolve(declaredAnnotation.annotationType(), symbol);
+                resolved.accept(this);
+            }
         }
 
     }

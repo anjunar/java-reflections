@@ -17,7 +17,7 @@ public class ConstructorSymbol extends ExecutableSymbol {
     private final Constructor<?> underlying;
     private final ClassSymbol owner;
 
-    private ConstructorSymbol[] overridden;
+    private ConstructorSymbol[] hidden;
 
     private ConstructorSymbol(Constructor<?> underlying, ClassSymbol owner) {
         super(underlying, owner);
@@ -26,16 +26,16 @@ public class ConstructorSymbol extends ExecutableSymbol {
     }
 
     @Override
-    public ConstructorSymbol[] getOverridden() {
-        if (Objects.isNull(overridden)) {
+    public ConstructorSymbol[] getHidden() {
+        if (Objects.isNull(hidden)) {
             TypeSymbol[] hierarchy = owner.getHierarchy();
             Class<?>[] parameters = Arrays
                     .stream(getParameters())
-                    .flatMap(param -> Utils.extracted(param.getType()).map(ClassSymbol::getUnderlying))
+                    .flatMap(param -> Utils.extractRaw(param.getType()).map(ClassSymbol::getUnderlying))
                     .toArray(Class<?>[]::new);
 
-            overridden = Arrays.stream(hierarchy)
-                    .flatMap(Utils::extracted)
+            hidden = Arrays.stream(hierarchy)
+                    .flatMap(Utils::extractRaw)
                     .filter(clazz -> {
                         try {
                             return clazz.getUnderlying().getDeclaredConstructor(parameters) != null;
@@ -53,12 +53,12 @@ public class ConstructorSymbol extends ExecutableSymbol {
                     })
                     .toArray(ConstructorSymbol[]::new);
         }
-        return overridden;
+        return hidden;
     }
 
     @Override
     public String toString() {
-        return STR."\{Utils.annotation(getAnnotations())}\{super.toString()}\{underlying.getDeclaringClass().getSimpleName()}(\{ Utils.collection(getParameters(), ", ")}) [\{getOverridden().length}]";
+        return STR."\{Utils.annotation(getAnnotations())}\{super.toString()}\{underlying.getDeclaringClass().getSimpleName()}(\{ Utils.collection(getParameters(), ", ")}) [\{getHidden().length}]";
     }
 
     @Override

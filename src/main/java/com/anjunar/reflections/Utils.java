@@ -34,9 +34,9 @@ public class Utils {
 
     }
 
-    public static Stream<ClassSymbol> extracted(TypeSymbol clazz) {
+    public static Stream<ClassSymbol> extractRaw(TypeSymbol clazz) {
         return switch (clazz) {
-            case ParameterizeTypeSymbol symbol -> extracted(symbol.getType());
+            case ParameterizeTypeSymbol symbol -> extractRaw(symbol.getType());
             case ClassSymbol symbol ->  Stream.of(symbol);
             default -> Stream.empty();
         };

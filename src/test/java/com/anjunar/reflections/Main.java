@@ -1,6 +1,9 @@
 package com.anjunar.reflections;
 
+import com.anjunar.reflections.bean.BeanModel;
 import com.anjunar.reflections.types.ClassSymbol;
+import com.anjunar.reflections.types.TypeResolver;
+import com.anjunar.reflections.types.TypeSymbol;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.ClassPath;
 
@@ -26,12 +29,15 @@ public class Main {
 
         Resolver resolver = Reflections.init(classes);
 
-        Collection<ClassSymbol> extendz = resolver.universe().isExtendingFrom(resolver.get(Identity.class));
+        for (BeanModel bean : resolver.universe().beans()) {
+            System.out.println(bean);
+            System.out.println("\n");
+        }
 
-//        Utils.renderToConsole(resolver.symbols());
+        ClassSymbol resolved = (ClassSymbol) TypeResolver.resolve(Person.class, null);
+        BeanModel beanModel = new BeanModel(resolved);
 
-        System.out.println(resolver.symbols().size());
-
+        System.out.println(beanModel);
     }
 
 }

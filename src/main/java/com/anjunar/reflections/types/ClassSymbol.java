@@ -14,6 +14,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 
 public class ClassSymbol extends TypeSymbol implements Annotated {
     private static final Map<Class<?>, ClassSymbol> cache = new HashMap<>();
@@ -23,9 +24,16 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
 
     private TypeSymbol superClass;
     private TypeSymbol[] hierarchy;
+    private ClassSymbol[] rawHierarchy;
+
+    private MemberSymbol[] declaredMembers;
+    private MemberSymbol[] members;
     private FieldSymbol[] declaredFields;
+    private FieldSymbol[] fields;
     private ConstructorSymbol[] declaredConstructors;
+    private ConstructorSymbol[] constructors;
     private MethodSymbol[] declaredMethods;
+    private MethodSymbol[] methods;
     private ClassSymbol[] declaredClasses;
 
     private Annotation[] annotations;
@@ -105,11 +113,14 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
     }
 
     public MemberSymbol[] getDeclaredMembers() {
-        List<MemberSymbol> symbols = new ArrayList<>();
-        symbols.addAll(Arrays.asList(getDeclaredFields()));
-        symbols.addAll(Arrays.asList(getDeclaredConstructors()));
-        symbols.addAll(Arrays.asList(getDeclaredMethods()));
-        return symbols.toArray(new MemberSymbol[0]);
+        if (Objects.isNull(declaredMembers)) {
+            List<MemberSymbol> symbols = new ArrayList<>();
+            symbols.addAll(Arrays.asList(getDeclaredFields()));
+            symbols.addAll(Arrays.asList(getDeclaredConstructors()));
+            symbols.addAll(Arrays.asList(getDeclaredMethods()));
+            declaredMembers = symbols.toArray(new MemberSymbol[0]);
+        }
+        return declaredMembers;
     }
 
     public FieldSymbol[] getDeclaredFields() {
@@ -137,6 +148,25 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
         return declaredFields;
     }
 
+    public FieldSymbol[] getFields() {
+        if (Objects.isNull(fields)) {
+            FieldSymbol[] allFieldSymbols = Arrays.stream(hierarchy)
+                    .flatMap(Utils::extractRaw)
+                    .flatMap(clazz -> Arrays.stream(clazz.getDeclaredFields()))
+                    .toArray(FieldSymbol[]::new);
+
+            List<FieldSymbol> hidden = Arrays.stream(allFieldSymbols)
+                    .filter(field -> field.getHidden().length > 0)
+                    .flatMap(field -> Arrays.stream(field.getHidden()))
+                    .toList();
+
+            fields = Arrays.stream(allFieldSymbols)
+                    .filter(field -> ! hidden.contains(field))
+                    .toArray(FieldSymbol[]::new);
+        }
+        return fields;
+    }
+
     public ConstructorSymbol[] getDeclaredConstructors() {
         if (Objects.isNull(declaredConstructors)) {
             try {
@@ -153,6 +183,26 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
         }
         return declaredConstructors;
     }
+
+    public ConstructorSymbol[] getConstructors() {
+        if (Objects.isNull(constructors)) {
+            ConstructorSymbol[] allConstructorSymbols = Arrays.stream(hierarchy)
+                    .flatMap(Utils::extractRaw)
+                    .flatMap(clazz -> Arrays.stream(clazz.getDeclaredConstructors()))
+                    .toArray(ConstructorSymbol[]::new);
+
+            List<ConstructorSymbol> hidden = Arrays.stream(allConstructorSymbols)
+                    .filter(constructor -> constructor.getHidden().length > 0)
+                    .flatMap(constructor -> Arrays.stream(constructor.getHidden()))
+                    .toList();
+
+            constructors = Arrays.stream(allConstructorSymbols)
+                    .filter(constructor -> ! hidden.contains(constructor))
+                    .toArray(ConstructorSymbol[]::new);
+        }
+        return constructors;
+    }
+
 
     public MethodSymbol[] getDeclaredMethods() {
         if (Objects.isNull(declaredMethods)) {
@@ -177,6 +227,26 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
         }
         return declaredMethods;
     }
+
+    public MethodSymbol[] getMethods() {
+        if (Objects.isNull(methods)) {
+            MethodSymbol[] allMethodSymbols = Arrays.stream(hierarchy)
+                    .flatMap(Utils::extractRaw)
+                    .flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()))
+                    .toArray(MethodSymbol[]::new);
+
+            List<MethodSymbol> hidden = Arrays.stream(allMethodSymbols)
+                    .filter(method -> method.getHidden().length > 0)
+                    .flatMap(method -> Arrays.stream(method.getHidden()))
+                    .toList();
+
+            methods = Arrays.stream(allMethodSymbols)
+                    .filter(method -> ! hidden.contains(method))
+                    .toArray(MethodSymbol[]::new);
+        }
+        return methods;
+    }
+
 
     public ClassSymbol[] getDeclaredClasses() {
         if (Objects.isNull(declaredClasses)) {
@@ -203,7 +273,7 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
     public Annotation[] getAnnotations() {
         if (Objects.isNull(annotations)) {
             annotations = Arrays.stream(getHierarchy())
-                    .flatMap(Utils::extracted)
+                    .flatMap(Utils::extractRaw)
                     .flatMap(clazz -> Arrays.stream(clazz.getDeclaredAnnotations()))
                     .toArray(Annotation[]::new);
         }
