@@ -31,7 +31,7 @@ public class ConstructorSymbol extends ExecutableSymbol {
             TypeSymbol[] hierarchy = owner.getHierarchy();
             Class<?>[] parameters = Arrays
                     .stream(getParameters())
-                    .flatMap(param -> Utils.extractRaw(param.getType()).map(ClassSymbol::getUnderlying))
+                    .flatMap(param -> Utils.extractRaw(param.getGenericType()).map(ClassSymbol::getUnderlying))
                     .toArray(Class<?>[]::new);
 
             hidden = Arrays.stream(hierarchy)

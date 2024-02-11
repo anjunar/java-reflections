@@ -3,6 +3,7 @@ package com.anjunar.reflections.bean;
 import com.anjunar.reflections.annotations.Annotated;
 import com.anjunar.reflections.members.FieldSymbol;
 import com.anjunar.reflections.members.MethodSymbol;
+import com.anjunar.reflections.types.ClassSymbol;
 import com.anjunar.reflections.types.TypeSymbol;
 import com.google.common.reflect.TypeToken;
 
@@ -41,7 +42,11 @@ public class BeanProperty implements Annotated {
         }
     }
 
-    public TypeSymbol getType() {
+    public TypeSymbol getGenericType() {
+        return getter.getGenericReturnType();
+    }
+
+    public ClassSymbol getType() {
         return getter.getReturnType();
     }
 
@@ -93,9 +98,9 @@ public class BeanProperty implements Annotated {
     @Override
     public String toString() {
         if (Objects.nonNull(setter)) {
-            return "var " + name + " " + getter.getReturnType();
+            return "var " + name + " " + getter.getGenericReturnType();
         } else {
-            return "val " + name + " " + getter.getReturnType();
+            return "val " + name + " " + getter.getGenericReturnType();
         }
 
     }

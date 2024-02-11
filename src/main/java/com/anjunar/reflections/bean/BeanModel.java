@@ -1,16 +1,18 @@
 package com.anjunar.reflections.bean;
 
+import com.anjunar.reflections.annotations.Annotated;
 import com.anjunar.reflections.members.FieldSymbol;
 import com.anjunar.reflections.members.MethodSymbol;
 import com.anjunar.reflections.types.ClassSymbol;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class BeanModel {
+public class BeanModel implements Annotated {
 
     private final Pattern getterRegex = Pattern.compile("^is|get(\\w+)");
     private final ClassSymbol symbol;
@@ -64,6 +66,16 @@ public class BeanModel {
 
     public ClassSymbol getSymbol() {
         return symbol;
+    }
+
+    @Override
+    public Annotation[] getDeclaredAnnotations() {
+        return symbol.getDeclaredAnnotations();
+    }
+
+    @Override
+    public Annotation[] getAnnotations() {
+        return symbol.getAnnotations();
     }
 
     @Override

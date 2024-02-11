@@ -44,7 +44,7 @@ public class FullScanVisitor implements NodeVisitor {
         if (!cache.contains(symbol)) {
             cache.add(symbol);
 
-            symbol.getType().accept(this);
+            symbol.getGenericType().accept(this);
 
             for (Annotation declaredAnnotation : symbol.getDeclaredAnnotations()) {
                 TypeSymbol resolved = TypeResolver.resolve(declaredAnnotation.annotationType(), symbol);
@@ -147,7 +147,7 @@ public class FullScanVisitor implements NodeVisitor {
                 parameter.accept(this);
             }
 
-            symbol.getReturnType().accept(this);
+            symbol.getGenericReturnType().accept(this);
 
             for (Annotation declaredAnnotation : symbol.getDeclaredAnnotations()) {
                 TypeSymbol resolved = TypeResolver.resolve(declaredAnnotation.annotationType(), symbol);

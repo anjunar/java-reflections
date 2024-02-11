@@ -106,7 +106,7 @@ public abstract class ExecutableSymbol extends MemberSymbol {
 
         @Override
         public String toString() {
-            return STR."\{getType()} \{getName()}";
+            return STR."\{getGenericType()} \{getName()}";
         }
 
         @Override
