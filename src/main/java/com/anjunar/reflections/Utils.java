@@ -1,8 +1,6 @@
 package com.anjunar.reflections;
 
-import com.anjunar.reflections.types.ClassSymbol;
-import com.anjunar.reflections.types.ParameterizeTypeSymbol;
-import com.anjunar.reflections.types.TypeSymbol;
+import com.anjunar.reflections.types.*;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -42,6 +40,16 @@ public class Utils {
         };
     }
 
+    public static ClassSymbol getRawType(TypeSymbol symbol) {
+        return switch (symbol) {
+            case ClassSymbol classSymbol -> classSymbol;
+            case GenericArrayTypeSymbol genericArrayTypeSymbol -> getRawType(genericArrayTypeSymbol.getType());
+            case ParameterizeTypeSymbol typeSymbol -> getRawType(typeSymbol.getType());
+            case TypeVariableSymbol typeVariableSymbol -> throw new IllegalStateException("Type Variable cannot be a raw type");
+            case WildcardTypeSymbol wildcardTypeSymbol -> getRawType(wildcardTypeSymbol.getLower()[0]);
+            default -> throw new IllegalStateException("Unknow Type");
+        };
+    }
 
     public static String brackets(Object[] args) {
         String result = "";

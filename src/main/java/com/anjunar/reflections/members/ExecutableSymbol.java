@@ -1,5 +1,6 @@
 package com.anjunar.reflections.members;
 
+import com.anjunar.reflections.Utils;
 import com.anjunar.reflections.annotations.Annotated;
 import com.anjunar.reflections.nodes.NodeSymbol;
 import com.anjunar.reflections.nodes.NodeVisitor;
@@ -75,11 +76,15 @@ public abstract class ExecutableSymbol extends MemberSymbol {
             return underlying.getName();
         }
 
-        public TypeSymbol getType() {
+        public TypeSymbol getGenericType() {
             if (Objects.isNull(type)) {
                 type = TypeResolver.resolve(underlying.getParameterizedType(), this);
             }
             return type;
+        }
+
+        public ClassSymbol getType() {
+            return Utils.getRawType(getGenericType());
         }
 
         @Override

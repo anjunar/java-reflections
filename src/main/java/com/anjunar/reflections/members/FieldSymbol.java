@@ -43,11 +43,15 @@ public class FieldSymbol extends MemberSymbol {
         return underlying.getName();
     }
 
-    public TypeSymbol getType() {
+    public TypeSymbol getGenericType() {
         if (Objects.isNull(type)) {
             type = TypeResolver.resolve(underlying.getGenericType(), this);
         }
         return type;
+    }
+
+    public ClassSymbol getType() {
+        return Utils.getRawType(getGenericType());
     }
 
     public FieldSymbol[] getHidden() {

@@ -3,13 +3,16 @@ package com.anjunar.reflections.bean;
 import com.anjunar.reflections.annotations.Annotated;
 import com.anjunar.reflections.members.FieldSymbol;
 import com.anjunar.reflections.members.MethodSymbol;
+import com.anjunar.reflections.types.TypeSymbol;
+import com.google.common.reflect.TypeToken;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class Property implements Annotated {
+public class BeanProperty implements Annotated {
 
     private final String name;
 
@@ -19,7 +22,7 @@ public class Property implements Annotated {
 
     private final MethodSymbol setter;
 
-    public Property(String name, FieldSymbol field, MethodSymbol getter, MethodSymbol setter) {
+    public BeanProperty(String name, FieldSymbol field, MethodSymbol getter, MethodSymbol setter) {
         this.name = name;
         this.field = field;
         this.getter = getter;
@@ -36,6 +39,10 @@ public class Property implements Annotated {
         } else {
             throw new IllegalStateException("No Setter available");
         }
+    }
+
+    public TypeSymbol getType() {
+        return getter.getReturnType();
     }
 
     public String getName() {
@@ -71,7 +78,7 @@ public class Property implements Annotated {
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
-        if (!(object instanceof Property property)) return false;
+        if (!(object instanceof BeanProperty property)) return false;
         return Objects.equals(name, property.name) &&
                 Objects.equals(field, property.field) &&
                 Objects.equals(getter, property.getter) &&

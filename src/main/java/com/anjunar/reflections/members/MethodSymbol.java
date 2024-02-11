@@ -5,6 +5,7 @@ import com.anjunar.reflections.nodes.NodeVisitor;
 import com.anjunar.reflections.types.ClassSymbol;
 import com.anjunar.reflections.types.TypeResolver;
 import com.anjunar.reflections.types.TypeSymbol;
+import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -37,15 +38,27 @@ public class MethodSymbol extends ExecutableSymbol {
         }
     }
 
+    public boolean equalSignature(Method method) {
+        return underlying.getName().equals(method.getName()) && Arrays.equals(underlying.getParameters(), method.getParameters());
+    }
+
     public String getName() {
         return underlying.getName();
     }
 
-    public TypeSymbol getReturnType() {
+    public TypeSymbol getGenericReturnType() {
         if (Objects.isNull(returnType)) {
             returnType = TypeResolver.resolve(underlying.getGenericReturnType(), this);
         }
         return returnType;
+    }
+
+    public ClassSymbol getReturnType() {
+        return Utils.getRawType(getGenericReturnType());
+    }
+
+    public ClassSymbol getOwner() {
+        return owner;
     }
 
     public MethodSymbol[] getHidden() {

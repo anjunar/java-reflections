@@ -9,6 +9,10 @@ import java.util.Objects;
 
 public class TypeResolver {
 
+    public static ClassSymbol resolve(Class<?> aClass) {
+        return (ClassSymbol) resolve(aClass, null);
+    }
+
     public static TypeSymbol resolve(Type type, NodeSymbol owner) {
         return switch (type) {
             case Class<?> clazz -> ClassSymbol.newInstance(clazz, owner);

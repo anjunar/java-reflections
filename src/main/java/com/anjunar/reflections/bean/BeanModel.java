@@ -3,12 +3,9 @@ package com.anjunar.reflections.bean;
 import com.anjunar.reflections.members.FieldSymbol;
 import com.anjunar.reflections.members.MethodSymbol;
 import com.anjunar.reflections.types.ClassSymbol;
-import com.google.common.collect.Lists;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -18,20 +15,20 @@ public class BeanModel {
     private final Pattern getterRegex = Pattern.compile("^is|get(\\w+)");
     private final ClassSymbol symbol;
 
-    private Property[] properties;
+    private BeanProperty[] properties;
 
     public BeanModel(ClassSymbol symbol) {
         this.symbol = symbol;
     }
 
-    public Property find(String name) {
+    public BeanProperty find(String name) {
         return Arrays.stream(getProperties())
                 .filter(property -> property.getName().equals(name))
                 .findFirst()
                 .get();
     }
 
-    public Property[] getProperties() {
+    public BeanProperty[] getProperties() {
         if (Objects.isNull(properties)) {
             properties = Arrays.stream(symbol.getMethods())
                     .filter(method -> {
@@ -54,12 +51,12 @@ public class BeanModel {
                                     .findFirst()
                                     .orElse(null);
 
-                            return new Property(propertyName, backedField, getterMethod, setterMethod);
+                            return new BeanProperty(propertyName, backedField, getterMethod, setterMethod);
                         }
 
                         throw new IllegalStateException("no getter found " + getterMethod.getName());
                     })
-                    .toArray(Property[]::new);
+                    .toArray(BeanProperty[]::new);
 
         }
         return properties;
@@ -83,6 +80,6 @@ public class BeanModel {
 
     @Override
     public String toString() {
-        return STR."Bean \{symbol.toString()}\n\{Arrays.stream(getProperties()).map(Property::toString).collect(Collectors.joining("\n"))}";
+        return STR."Bean \{symbol.toString()}\n\{Arrays.stream(getProperties()).map(BeanProperty::toString).collect(Collectors.joining("\n"))}";
     }
 }

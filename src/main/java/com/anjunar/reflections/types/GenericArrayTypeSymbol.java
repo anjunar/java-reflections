@@ -1,7 +1,9 @@
 package com.anjunar.reflections.types;
 
+import com.anjunar.reflections.Utils;
 import com.anjunar.reflections.nodes.NodeSymbol;
 import com.anjunar.reflections.nodes.NodeVisitor;
+import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;

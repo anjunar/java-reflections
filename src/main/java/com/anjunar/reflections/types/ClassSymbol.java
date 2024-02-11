@@ -8,6 +8,7 @@ import com.anjunar.reflections.members.MemberSymbol;
 import com.anjunar.reflections.members.MethodSymbol;
 import com.anjunar.reflections.nodes.NodeSymbol;
 import com.anjunar.reflections.nodes.NodeVisitor;
+import com.google.common.reflect.TypeToken;
 import javassist.*;
 
 import java.lang.annotation.Annotation;
@@ -15,6 +16,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ClassSymbol extends TypeSymbol implements Annotated {
     private static final Map<Class<?>, ClassSymbol> cache = new HashMap<>();
@@ -24,8 +26,6 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
 
     private TypeSymbol superClass;
     private TypeSymbol[] hierarchy;
-    private ClassSymbol[] rawHierarchy;
-
     private MemberSymbol[] declaredMembers;
     private MemberSymbol[] members;
     private FieldSymbol[] declaredFields;
@@ -150,7 +150,7 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
 
     public FieldSymbol[] getFields() {
         if (Objects.isNull(fields)) {
-            FieldSymbol[] allFieldSymbols = Arrays.stream(hierarchy)
+            FieldSymbol[] allFieldSymbols = Stream.concat(Stream.of(this), Arrays.stream(getHierarchy()))
                     .flatMap(Utils::extractRaw)
                     .flatMap(clazz -> Arrays.stream(clazz.getDeclaredFields()))
                     .toArray(FieldSymbol[]::new);
@@ -186,7 +186,7 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
 
     public ConstructorSymbol[] getConstructors() {
         if (Objects.isNull(constructors)) {
-            ConstructorSymbol[] allConstructorSymbols = Arrays.stream(hierarchy)
+            ConstructorSymbol[] allConstructorSymbols = Stream.concat(Stream.of(this), Arrays.stream(getHierarchy()))
                     .flatMap(Utils::extractRaw)
                     .flatMap(clazz -> Arrays.stream(clazz.getDeclaredConstructors()))
                     .toArray(ConstructorSymbol[]::new);
@@ -230,7 +230,7 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
 
     public MethodSymbol[] getMethods() {
         if (Objects.isNull(methods)) {
-            MethodSymbol[] allMethodSymbols = Arrays.stream(hierarchy)
+            MethodSymbol[] allMethodSymbols = Stream.concat(Stream.of(this), Arrays.stream(getHierarchy()))
                     .flatMap(Utils::extractRaw)
                     .flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()))
                     .toArray(MethodSymbol[]::new);
@@ -245,6 +245,12 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
                     .toArray(MethodSymbol[]::new);
         }
         return methods;
+    }
+
+    public MethodSymbol[] getMethod(String name) {
+        return Arrays.stream(getMethods())
+                .filter(method -> method.getName().equals(name))
+                .toArray(MethodSymbol[]::new);
     }
 
 
@@ -280,6 +286,9 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
         return annotations;
     }
 
+    public Object[] getEnumConstants() {
+        return underlying.getEnumConstants();
+    }
 
     @Override
     public String toString() {
