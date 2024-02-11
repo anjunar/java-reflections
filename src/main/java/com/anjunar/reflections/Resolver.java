@@ -5,6 +5,7 @@ import com.anjunar.reflections.nodes.FullScanVisitor;
 import com.anjunar.reflections.types.ClassSymbol;
 import com.google.common.collect.ImmutableSortedMap;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.function.Function;
 
@@ -69,7 +70,7 @@ public class Resolver {
                     .map(BeanModel::new)
                     .collect(ImmutableSortedMap.toImmutableSortedMap(
                             Comparator.comparing(Class::getName),
-                            bean -> bean.getSymbol().getUnderlying(),
+                            bean -> Utils.getRawType(bean.getSymbol().getUnderlying()),
                             Function.identity()
                     ));
 

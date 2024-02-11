@@ -1,13 +1,18 @@
 package com.anjunar.reflections.bean;
 
+import com.anjunar.reflections.Utils;
 import com.anjunar.reflections.annotations.Annotated;
 import com.anjunar.reflections.members.FieldSymbol;
 import com.anjunar.reflections.members.MethodSymbol;
 import com.anjunar.reflections.types.ClassSymbol;
+import com.anjunar.reflections.types.TypeResolver;
 import com.anjunar.reflections.types.TypeSymbol;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,14 +22,17 @@ public class BeanProperty implements Annotated {
 
     private final String name;
 
+    private final TypeSymbol symbol;
+
     private final FieldSymbol field;
 
     private final MethodSymbol getter;
 
     private final MethodSymbol setter;
 
-    public BeanProperty(String name, FieldSymbol field, MethodSymbol getter, MethodSymbol setter) {
+    public BeanProperty(String name, TypeSymbol symbol, FieldSymbol field, MethodSymbol getter, MethodSymbol setter) {
         this.name = name;
+        this.symbol = symbol;
         this.field = field;
         this.getter = getter;
         this.setter = setter;
@@ -43,11 +51,28 @@ public class BeanProperty implements Annotated {
     }
 
     public TypeSymbol getGenericType() {
-        return getter.getGenericReturnType();
+        Type underlying = getter.getGenericReturnType().getUnderlying();
+
+        TypeToken typeToken = TypeToken.of(underlying);
+
+        if (underlying instanceof TypeVariable<?>) {
+            if (symbol.getUnderlying() instanceof ParameterizedType parameterizedType) {
+                for (Type actualTypeArgument : parameterizedType.getActualTypeArguments()) {
+                    typeToken = typeToken.resolveType(actualTypeArgument);
+                }
+            }
+        }
+
+
+        return TypeResolver.resolve(typeToken.getType(), symbol);
     }
 
     public ClassSymbol getType() {
-        return getter.getReturnType();
+        return Utils.getRawType(getGenericType());
+    }
+
+    public TypeToken<?> getTypeToken() {
+        return TypeToken.of(getGenericType().getUnderlying());
     }
 
     public String getName() {
@@ -98,9 +123,9 @@ public class BeanProperty implements Annotated {
     @Override
     public String toString() {
         if (Objects.nonNull(setter)) {
-            return "var " + name + " " + getter.getGenericReturnType();
+            return "var " + name + " " + getGenericType();
         } else {
-            return "val " + name + " " + getter.getGenericReturnType();
+            return "val " + name + " " + getGenericType();
         }
 
     }

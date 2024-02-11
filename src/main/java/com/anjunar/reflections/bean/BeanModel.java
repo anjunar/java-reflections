@@ -1,23 +1,27 @@
 package com.anjunar.reflections.bean;
 
+import com.anjunar.reflections.Utils;
+import com.anjunar.reflections.annotations.Annotated;
 import com.anjunar.reflections.members.FieldSymbol;
 import com.anjunar.reflections.members.MethodSymbol;
 import com.anjunar.reflections.types.ClassSymbol;
+import com.anjunar.reflections.types.TypeSymbol;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class BeanModel {
+public class BeanModel implements Annotated {
 
     private final Pattern getterRegex = Pattern.compile("^is|get(\\w+)");
-    private final ClassSymbol symbol;
+    private final TypeSymbol symbol;
 
     private BeanProperty[] properties;
 
-    public BeanModel(ClassSymbol symbol) {
+    public BeanModel(TypeSymbol symbol) {
         this.symbol = symbol;
     }
 
@@ -30,10 +34,10 @@ public class BeanModel {
 
     public BeanProperty[] getProperties() {
         if (Objects.isNull(properties)) {
-            properties = Arrays.stream(symbol.getMethods())
+            properties = Arrays.stream(Utils.getRawType(symbol).getMethods())
                     .filter(method -> {
                         Matcher matcher = getterRegex.matcher(method.getName());
-                        return matcher.matches() && method.getParameters().length == 0;
+                        return matcher.matches() && method.getParameters().length == 0 && ! method.getOwner().getUnderlying().equals(Object.class);
                     })
                     .map(getterMethod -> {
                         Matcher matcher = getterRegex.matcher(getterMethod.getName());
@@ -41,17 +45,17 @@ public class BeanModel {
                             String group = matcher.group(1);
                             String propertyName = group.substring(0, 1).toLowerCase() + group.substring(1);
 
-                            FieldSymbol backedField = Arrays.stream(symbol.getFields())
+                            FieldSymbol backedField = Arrays.stream(Utils.getRawType(symbol).getFields())
                                     .filter(field -> field.getName().equals(propertyName))
                                     .findFirst()
                                     .orElse(null);
 
-                            MethodSymbol setterMethod = Arrays.stream(symbol.getMethods())
+                            MethodSymbol setterMethod = Arrays.stream(Utils.getRawType(symbol).getMethods())
                                     .filter(method -> method.getName().equals("set" + group) && method.getParameters().length == 1)
                                     .findFirst()
                                     .orElse(null);
 
-                            return new BeanProperty(propertyName, backedField, getterMethod, setterMethod);
+                            return new BeanProperty(propertyName, symbol, backedField, getterMethod, setterMethod);
                         }
 
                         throw new IllegalStateException("no getter found " + getterMethod.getName());
@@ -62,8 +66,18 @@ public class BeanModel {
         return properties;
     }
 
-    public ClassSymbol getSymbol() {
+    public TypeSymbol getSymbol() {
         return symbol;
+    }
+
+    @Override
+    public Annotation[] getDeclaredAnnotations() {
+        return Utils.getRawType(symbol).getDeclaredAnnotations();
+    }
+
+    @Override
+    public Annotation[] getAnnotations() {
+        return Utils.getRawType(symbol).getAnnotations();
     }
 
     @Override

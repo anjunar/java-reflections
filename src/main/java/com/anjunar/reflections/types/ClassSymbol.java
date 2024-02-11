@@ -278,7 +278,7 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
     @Override
     public Annotation[] getAnnotations() {
         if (Objects.isNull(annotations)) {
-            annotations = Arrays.stream(getHierarchy())
+            annotations = Stream.concat(Stream.of(this), Arrays.stream(getHierarchy()))
                     .flatMap(Utils::extractRaw)
                     .flatMap(clazz -> Arrays.stream(clazz.getDeclaredAnnotations()))
                     .toArray(Annotation[]::new);

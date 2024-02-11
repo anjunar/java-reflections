@@ -3,6 +3,7 @@ package com.anjunar.reflections;
 import com.anjunar.reflections.types.*;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -37,6 +38,17 @@ public class Utils {
             case ParameterizeTypeSymbol symbol -> extractRaw(symbol.getType());
             case ClassSymbol symbol ->  Stream.of(symbol);
             default -> Stream.empty();
+        };
+    }
+
+    public static Class<?> getRawType(Type type) {
+        return switch (type) {
+            case Class<?> aClass -> aClass;
+            case GenericArrayType genericArrayType -> getRawType(genericArrayType.getGenericComponentType());
+            case ParameterizedType parameterizedType -> getRawType(parameterizedType.getRawType());
+            case TypeVariable<?> typeVariable -> throw new IllegalStateException("Type Variable cannot be a raw type");
+            case WildcardType wildcardType -> getRawType(wildcardType.getLowerBounds()[0]);
+            default -> throw new IllegalStateException("Unknow Type");
         };
     }
 
