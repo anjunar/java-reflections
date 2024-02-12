@@ -6,6 +6,7 @@ import com.anjunar.reflections.types.ClassSymbol;
 import com.anjunar.reflections.types.TypeSymbol;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +24,14 @@ public class ConstructorSymbol extends ExecutableSymbol {
         super(underlying, owner);
         this.underlying = underlying;
         this.owner = owner;
+    }
+
+    public Object newInstance(Object... parameters) {
+        try {
+            return underlying.newInstance(parameters);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
