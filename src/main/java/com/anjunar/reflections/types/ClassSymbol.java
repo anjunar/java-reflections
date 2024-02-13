@@ -150,7 +150,7 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
 
     public FieldSymbol[] getFields() {
         if (Objects.isNull(fields)) {
-            FieldSymbol[] allFieldSymbols = Stream.concat(Stream.of(this), Arrays.stream(getHierarchy()))
+            FieldSymbol[] allFieldSymbols = Stream.concat(Arrays.stream(getHierarchy()), Stream.of(this))
                     .flatMap(Utils::extractRaw)
                     .flatMap(clazz -> Arrays.stream(clazz.getDeclaredFields()))
                     .toArray(FieldSymbol[]::new);
@@ -186,7 +186,7 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
 
     public ConstructorSymbol[] getConstructors() {
         if (Objects.isNull(constructors)) {
-            ConstructorSymbol[] allConstructorSymbols = Stream.concat(Stream.of(this), Arrays.stream(getHierarchy()))
+            ConstructorSymbol[] allConstructorSymbols = Stream.concat(Arrays.stream(getHierarchy()), Stream.of(this))
                     .flatMap(Utils::extractRaw)
                     .flatMap(clazz -> Arrays.stream(clazz.getDeclaredConstructors()))
                     .toArray(ConstructorSymbol[]::new);
@@ -230,7 +230,7 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
 
     public MethodSymbol[] getMethods() {
         if (Objects.isNull(methods)) {
-            MethodSymbol[] allMethodSymbols = Stream.concat(Stream.of(this), Arrays.stream(getHierarchy()))
+            MethodSymbol[] allMethodSymbols = Stream.concat(Arrays.stream(getHierarchy()), Stream.of(this))
                     .flatMap(Utils::extractRaw)
                     .flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()))
                     .toArray(MethodSymbol[]::new);

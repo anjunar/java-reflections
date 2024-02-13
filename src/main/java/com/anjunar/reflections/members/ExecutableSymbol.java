@@ -97,7 +97,7 @@ public abstract class ExecutableSymbol extends MemberSymbol {
         public Annotation[] getAnnotations() {
             if (Objects.isNull(annotations)) {
                 int parameterIndex = Arrays.asList(owner.getParameters()).indexOf(this);
-                annotations = Arrays.stream(owner.getHidden())
+                annotations = Stream.concat(Arrays.stream(owner.getHidden()), Stream.of(owner))
                         .flatMap(symbol -> Arrays.stream(symbol.getParameters()[parameterIndex].getDeclaredAnnotations()))
                         .toArray(Annotation[]::new);
             }
