@@ -10,11 +10,8 @@ import com.anjunar.reflections.types.TypeSymbol;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,18 +50,10 @@ public class BeanProperty implements Annotated {
     public TypeSymbol getGenericType() {
         Type underlying = getter.getGenericReturnType().getUnderlying();
 
-        TypeToken typeToken = TypeToken.of(underlying);
+        Type type = TypeToken.of(symbol.getUnderlying()).resolveType(underlying)
+                .getType();
 
-        if (underlying instanceof TypeVariable<?>) {
-            if (symbol.getUnderlying() instanceof ParameterizedType parameterizedType) {
-                for (Type actualTypeArgument : parameterizedType.getActualTypeArguments()) {
-                    typeToken = typeToken.resolveType(actualTypeArgument);
-                }
-            }
-        }
-
-
-        return TypeResolver.resolve(typeToken.getType(), symbol);
+        return TypeResolver.resolve(type, null);
     }
 
     public ClassSymbol getType() {
