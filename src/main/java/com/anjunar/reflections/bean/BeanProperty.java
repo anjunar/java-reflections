@@ -64,6 +64,10 @@ public class BeanProperty implements Annotated {
         return TypeToken.of(getGenericType().getUnderlying());
     }
 
+    public ClassSymbol getSymbol() {
+        return Utils.getRawType(symbol);
+    }
+
     public String getName() {
         return name;
     }

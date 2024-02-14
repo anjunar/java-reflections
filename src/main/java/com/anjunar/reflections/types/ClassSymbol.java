@@ -107,7 +107,7 @@ public class ClassSymbol extends TypeSymbol implements Annotated {
                 hierarchy.addAll(Arrays.stream(cursor.getGenericInterfaces()).map(inter -> TypeResolver.resolve(inter, this)).toList());
                 cursor = cursor.getSuperclass();
             }
-            this.hierarchy = hierarchy.toArray(new TypeSymbol[0]);
+            this.hierarchy = hierarchy.reversed().toArray(new TypeSymbol[0]);
         }
         return hierarchy;
     }
