@@ -27,12 +27,14 @@ public class Main {
                 .map(ClassPath.ClassInfo::load)
                 .collect(Collectors.toSet());
 
+/*
         Resolver resolver = Reflections.init(classes);
 
         for (BeanModel bean : resolver.universe().beans()) {
             System.out.println(bean);
             System.out.println("\n");
         }
+*/
 
         ClassSymbol resolved = (ClassSymbol) TypeResolver.resolve(Person.class, null);
         BeanModel beanModel = new BeanModel(resolved);
