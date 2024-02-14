@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class BeanModel implements Annotated {
 
-    private final Pattern getterRegex = Pattern.compile("^is|get(\\w+)");
+    private final Pattern getterRegex = Pattern.compile("is|get(\\w+)");
     private final TypeSymbol symbol;
 
     private BeanProperty[] properties;
