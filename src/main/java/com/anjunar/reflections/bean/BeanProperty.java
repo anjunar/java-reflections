@@ -21,15 +21,18 @@ public class BeanProperty implements Annotated {
 
     private final TypeSymbol symbol;
 
+    private final ClassSymbol owner;
+
     private final FieldSymbol field;
 
     private final MethodSymbol getter;
 
     private final MethodSymbol setter;
 
-    public BeanProperty(String name, TypeSymbol symbol, FieldSymbol field, MethodSymbol getter, MethodSymbol setter) {
+    public BeanProperty(String name, TypeSymbol symbol, ClassSymbol owner, FieldSymbol field, MethodSymbol getter, MethodSymbol setter) {
         this.name = name;
         this.symbol = symbol;
+        this.owner = owner;
         this.field = field;
         this.getter = getter;
         this.setter = setter;
@@ -66,6 +69,10 @@ public class BeanProperty implements Annotated {
 
     public ClassSymbol getSymbol() {
         return Utils.getRawType(symbol);
+    }
+
+    public ClassSymbol getOwner() {
+        return owner;
     }
 
     public String getName() {

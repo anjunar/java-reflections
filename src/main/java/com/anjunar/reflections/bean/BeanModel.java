@@ -55,7 +55,7 @@ public class BeanModel implements Annotated {
                                     .findFirst()
                                     .orElse(null);
 
-                            return new BeanProperty(propertyName, symbol, backedField, getterMethod, setterMethod);
+                            return new BeanProperty(propertyName, symbol, getterMethod.getOwner(), backedField, getterMethod, setterMethod);
                         }
 
                         throw new IllegalStateException("no getter found " + getterMethod.getName());

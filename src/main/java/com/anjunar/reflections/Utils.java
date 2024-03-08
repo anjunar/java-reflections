@@ -46,7 +46,7 @@ public class Utils {
             case Class<?> aClass -> aClass;
             case GenericArrayType genericArrayType -> getRawType(genericArrayType.getGenericComponentType());
             case ParameterizedType parameterizedType -> getRawType(parameterizedType.getRawType());
-            case TypeVariable<?> typeVariable -> throw new IllegalStateException("Type Variable cannot be a raw type");
+            case TypeVariable<?> typeVariable -> getRawType(typeVariable.getBounds()[0]);
             case WildcardType wildcardType -> getRawType(wildcardType.getLowerBounds()[0]);
             default -> throw new IllegalStateException("Unknow Type");
         };
@@ -57,7 +57,7 @@ public class Utils {
             case ClassSymbol classSymbol -> classSymbol;
             case GenericArrayTypeSymbol genericArrayTypeSymbol -> getRawType(genericArrayTypeSymbol.getType());
             case ParameterizeTypeSymbol typeSymbol -> getRawType(typeSymbol.getType());
-            case TypeVariableSymbol typeVariableSymbol -> throw new IllegalStateException("Type Variable cannot be a raw type");
+            case TypeVariableSymbol typeVariableSymbol -> getRawType(typeVariableSymbol.getBounds()[0]);
             case WildcardTypeSymbol wildcardTypeSymbol -> getRawType(wildcardTypeSymbol.getLower()[0]);
             default -> throw new IllegalStateException("Unknow Type");
         };
